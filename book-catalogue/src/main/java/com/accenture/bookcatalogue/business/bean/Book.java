@@ -1,11 +1,23 @@
 package com.accenture.bookcatalogue.business.bean;
 
+import org.springframework.validation.annotation.Validated;
+
 import java.util.Date;
 
 public class Book {
     private String title;
     private String author;
-    private int isbn;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    private int id;
+    private String isbn;
     private Date publishDate;
 
     public String getTitle() {
@@ -24,11 +36,11 @@ public class Book {
         this.author = author;
     }
 
-    public int getIsbn() {
+    public String getIsbn() {
         return isbn;
     }
 
-    public void setIsbn(int isbn) {
+    public void setIsbn(String isbn) {
         this.isbn = isbn;
     }
 

@@ -18,9 +18,20 @@ public class BookEntity {
 
     @Column(name="author")
     private String author;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     @Id
+    private int id;
+
     @Column(name="isbn")
-    private int isbn;
+    private String isbn;
 
     @Column(name="publishDate")
     private Date publishDate;
@@ -29,7 +40,7 @@ public class BookEntity {
         super();
     }
 
-    public BookEntity (String title, String author, int isbn, Date publishDate){
+    public BookEntity (String title, String author, String isbn, Date publishDate){
         super();
         this.author=author;
         this.isbn=isbn;
@@ -53,11 +64,11 @@ public class BookEntity {
         this.author = author;
     }
 
-    public int getIsbn() {
+    public String getIsbn() {
         return isbn;
     }
 
-    public void setIsbn(int isbn) {
+    public void setIsbn(String isbn) {
         this.isbn = isbn;
     }
 

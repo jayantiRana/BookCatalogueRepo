@@ -4,6 +4,7 @@ import com.accenture.bookcatalogue.business.bean.Book;
 import com.accenture.bookcatalogue.dao.BookDao;
 import com.accenture.bookcatalogue.entity.BookEntity;
 import com.accenture.bookcatalogue.utils.BookNotFoundException;
+import com.accenture.bookcatalogue.utils.IncorrectDataException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BookServiceImpl {
@@ -20,8 +20,14 @@ public class BookServiceImpl {
 
     public int addBook(Book book){
         BookEntity bookEntity = new BookEntity();
-        BeanUtils.copyProperties(book, bookEntity);
-        return bookDao.save(bookEntity).getIsbn();
+        int isbn= book.getIsbn().length();
+        if(book!=null && isbn==13) {
+            BeanUtils.copyProperties(book, bookEntity);
+        }
+        else {
+            throw new IncorrectDataException();
+        }
+        return bookDao.save(bookEntity).getId();
     }
 
     public Collection<Book> getBookDetails() {
@@ -41,16 +47,10 @@ public class BookServiceImpl {
         return bookEntityList;
     }
 
-    public Book getDetailsbyId(int isbn) {
+    public Book getDetailsById(int id) throws BookNotFoundException {
         Book book = null;
         BookEntity bookEntity = null;
-        try {
-            bookEntity = bookDao.getById(isbn);
-        } catch (BookNotFoundException e) {
-            System.out.println("Book Details Not Found");
-            e.printStackTrace();
-        }
-
+        bookEntity = bookDao.getById(id);
         if (bookEntity != null) {
             book = new Book();
             BeanUtils.copyProperties(bookEntity, book);
@@ -58,10 +58,10 @@ public class BookServiceImpl {
         return book;
     }
 
-    public Book deleteBook(int isbn){
+    public Book deleteBook(int id) throws BookNotFoundException{
         Book book=null;
-        if(getDetailsbyId(isbn)!=null){
-            book=getDetailsbyId(isbn);
+        if(getDetailsById(id)!=null){
+            book=getDetailsById(id);
             BookEntity bookEntity= new BookEntity();
             BeanUtils.copyProperties(book,bookEntity);
           bookDao.delete(bookEntity);
@@ -70,9 +70,9 @@ public class BookServiceImpl {
 
     }
 
-    public Book updateBook(Book book) {
+    public Book updateBook(Book book) throws BookNotFoundException{
         Book book1= null;
-        BookEntity bookEntity= bookDao.getById(book.getIsbn());
+        BookEntity bookEntity= bookDao.getById(book.getId());
         if(bookEntity!=null){
             BeanUtils.copyProperties(book,bookEntity);
             bookDao.save(bookEntity);
@@ -83,4 +83,13 @@ public class BookServiceImpl {
         return book1;
     }
 
+    public Collection<Book> getBookList(String title, String author, String isbn) {
+        Collection<Book> bookList = new ArrayList<Book>();
+        Collection<BookEntity> bookEntityList = null;
+
+        bookEntityList= bookDao.findByIsbnAndTitleAndAuthor(isbn,title,author);
+        BeanUtils.copyProperties(bookEntityList,bookList);
+
+        return bookList;
+    }
 }
